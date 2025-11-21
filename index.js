@@ -23,21 +23,22 @@ async function run() {
 
         //crud operations here
         const db = client.db("FoodLoversDB");
-        const reviewCollection = db.collection("reviewColleciton");
+        const reviewColleciton = db.collection("reviewColleciton");
+                                               
 
 
 
 
         app.get("/topReviews", async (req, res) => {
             const query = { rating: -1 };
-            const cursor = await reviewCollection.find().sort(query).limit(6);
+            const cursor = await reviewColleciton.find().sort(query).limit(6);
             const result = await cursor.toArray();
 
             res.send(result);
         })
         app.get("/allReviews", async (req, res) => {
             const query = { date: -1 };
-            const cursor = await reviewCollection.find().sort(query);
+            const cursor = await reviewColleciton.find().sort(query);
             const result = await cursor.toArray();
 
             res.send(result);
@@ -45,32 +46,32 @@ async function run() {
         app.get("/reviewDetails/:id", async (req, res) => {
             const idFromClient = req.params.id;
             const query = { _id: new ObjectId(idFromClient) }
-            const result = await reviewCollection.findOne(query);
+            const result = await reviewColleciton.findOne(query);
             res.send(result);
         })
         app.post("/allReviews", async (req, res) => {
             const newReview = req.body;
             console.log(newReview);
-            const result = await reviewCollection.insertOne(newReview);
+            const result = await reviewColleciton.insertOne(newReview);
             res.send(result);
         })
         app.get("/reviewsByEmail", async (req, res) => {
             const emailFromClient = req.query.email;
             const query = { email: emailFromClient };
-            const result = await reviewCollection.find(query).sort({ date: -1 }).toArray();
+            const result = await reviewColleciton.find(query).sort({ date: -1 }).toArray();
             res.send(result);
         });
         app.delete("/deleteReview/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
-            const result = await reviewCollection.deleteOne(query);
+            const result = await reviewColleciton.deleteOne(query);
             res.send(result);
         });
         app.put("/updateReview/:id", async (req, res) => {
             const id = req.params.id;
             const updatedData = req.body;
 
-            const result = await reviewCollection.updateOne(
+            const result = await reviewColleciton.updateOne(
                 { _id: new ObjectId(id) },
                 { $set: updatedData }
             );
@@ -102,7 +103,7 @@ async function run() {
         app.get("/search", async (req, res) => {
             const text = req.query.text;
 
-            const result = await reviewCollection.find({
+            const result = await reviewColleciton.find({
                 foodName: { $regex: text, $options: "i" }
             }).toArray();
 
@@ -119,24 +120,12 @@ async function run() {
             res.send(result);
         });
 
-
-
-
-
-
-
-
-
-
-
-
-
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
-        // await client.close();
+        await client.close();
     }
 }
 
